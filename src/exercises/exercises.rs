@@ -73,8 +73,7 @@ pub fn generate_revocation_pubkey(
 // Exercise 5
 //
 
-pub fn generate_revocation_privkey(per_commitment_secret: SecretKey, countersignatory_revocation_base_secret: SecretKey) -> SecretKey {
-
+pub fn generate_revocation_privkey(countersignatory_per_commitment_secret: SecretKey, revocation_base_secret: SecretKey) -> SecretKey {
     unimplemented!()
 }
 

@@ -122,19 +122,19 @@ pub fn generate_revocation_pubkey(
 // Exercise 5
 //
 
-pub fn generate_revocation_privkey(per_commitment_secret: SecretKey, countersignatory_revocation_base_secret: SecretKey) -> SecretKey {
+pub fn generate_revocation_privkey(countersignatory_per_commitment_secret: SecretKey, revocation_base_secret: SecretKey) -> SecretKey {
 
-    let R = pubkey_from_secret(countersignatory_revocation_base_secret);
+    let R = pubkey_from_secret(revocation_base_secret);
 
-    let P = pubkey_from_secret(per_commitment_secret);
+    let P = pubkey_from_secret(countersignatory_per_commitment_secret);
 
     let h1 = hash_pubkeys(R, P);
 
     let h2 = hash_pubkeys(P, R);
 
-    let key1 = privkey_multipication_tweak(countersignatory_revocation_base_secret, h1);
+    let key1 = privkey_multipication_tweak(revocation_base_secret, h1);
 
-    let key2 = privkey_multipication_tweak(per_commitment_secret, h2);
+    let key2 = privkey_multipication_tweak(countersignatory_per_commitment_secret, h2);
 
     add_privkeys(key1, key2)
 }
