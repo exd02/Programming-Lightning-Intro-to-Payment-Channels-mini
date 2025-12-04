@@ -119,7 +119,16 @@ pub fn generate_revocation_pubkey(
     countersignatory_basepoint: secp256k1PublicKey,
     per_commitment_point: secp256k1PublicKey,
 ) -> secp256k1PublicKey {
-    unimplemented!()
+    // Step 1: Calculate `h1` and `h2`
+    let h1 = hash_pubkeys(countersignatory_basepoint, per_commitment_point);
+    let h2 = hash_pubkeys(per_commitment_point, countersignatory_basepoint);
+
+    // Step 2: Tweak the Countersignatory Revocation Basepoint and Per Commitment Point
+    let r = pubkey_multipication_tweak(countersignatory_basepoint, h1);
+    let p = pubkey_multipication_tweak(per_commitment_point, h2);
+
+    // Step 3: Add & Return the Tweaked Public Key
+    add_pubkeys(r, p)
 }
 
 //
