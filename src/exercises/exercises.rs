@@ -84,8 +84,31 @@ pub fn build_refund_transaction(
     alice_balance: u64,
     bob_balance: u64
 ) -> Transaction {
+    // Step 1: Build a Output Scripts
+    let alice_script = p2wpkh_output_script(alice_pubkey);
+    let bob_script = p2wpkh_output_script(bob_pubkey);
 
-    unimplemented!()
+    // Step 2: Define Outputs
+    let alice_output = build_output(alice_balance, alice_script);
+    let bob_output = build_output(bob_balance, bob_script);
+
+    // Order outputs
+    let outputs = if alice_output < bob_output 
+        { vec![alice_output, bob_output] }
+        else { vec![bob_output, alice_output] };
+    
+    // Step 3: Define Version and Locktime
+    let version = Version::TWO;
+    let locktime = LockTime::ZERO;
+    
+    // Step 4: Build and Return the Transaction
+    // -- remember, inputs and outputs must be passed in as vectors (vec![])
+    Transaction {
+        version: version,
+        lock_time: locktime,
+        input: vec![funding_txin],
+        output: outputs
+    }
 }
 
 //
