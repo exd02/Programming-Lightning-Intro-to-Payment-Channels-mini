@@ -54,8 +54,23 @@ pub fn build_funding_transaction(
     bob_pubkey: &PublicKey,
     amount: u64,
 ) -> Transaction {
-
-    unimplemented!()
+    // Step 1: Build a Witness Script for the Multisig
+    let witness_script = two_of_two_multisig_witness_script(alice_pubkey, bob_pubkey);
+    
+    // Step 2: Create the Funding Transaction Output
+    let funding_txout = build_output(amount, witness_script.to_p2wsh());
+    
+    // Step 3: Define Version and Locktime
+    let version = Version::TWO;
+    let locktime = LockTime::ZERO;
+    
+    // Step 4: Build and Return the Transaction
+    Transaction {
+        version: version,
+        lock_time: locktime,
+        input: txins,
+        output: vec![funding_txout]
+    }
 }
 
 //
