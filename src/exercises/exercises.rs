@@ -26,7 +26,22 @@ pub fn two_of_two_multisig_witness_script(
     pubkey1: &PublicKey,
     pubkey2: &PublicKey,
 ) -> ScriptBuf {
-    unimplemented!()
+    // // convert pubkeys to compressed format
+    // let mut keys = [*pubkey1, *pubkey2];
+    // keys[0].compressed = true;
+    // keys[1].compressed = true;
+    
+    // // sort compressed pubkeys lexicographically
+    // keys.sort_unstable_by_key(|k| PublicKey::to_sort_key(*k));
+
+    // build 2x2 multisig script
+    Builder::new()
+        .push_int(2)
+        .push_key(&pubkey1)
+        .push_key(&pubkey2)
+        .push_int(2)
+        .push_opcode(opcodes::OP_CHECKMULTISIG)
+        .into_script()
 }
 
 //
