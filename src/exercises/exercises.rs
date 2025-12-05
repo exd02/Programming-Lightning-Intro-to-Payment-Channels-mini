@@ -161,7 +161,17 @@ pub fn to_local(
     to_local_delayed_pubkey: &PublicKey,
     to_self_delay: i64,
 ) -> ScriptBuf {
-    unimplemented!()
+    Builder::new()
+        .push_opcode(opcodes::OP_IF)
+            .push_key(&revocation_key)
+        .push_opcode(opcodes::OP_ELSE)
+            .push_int(to_self_delay)
+            .push_opcode(opcodes::OP_CSV)
+            .push_opcode(opcodes::OP_DROP)
+            .push_key(&to_local_delayed_pubkey)
+        .push_opcode(opcodes::OP_ENDIF)
+        .push_opcode(opcodes::OP_CHECKSIG)
+        .into_script()
 }
 
 //
