@@ -187,8 +187,29 @@ pub fn build_commitment_transaction(
     local_amount: u64,
     remote_amount: u64,
 ) -> Transaction {
+    // Step 1: Build to_local and to_remote Scripts
+    let to_local_script = to_local(&revocation_pubkey, to_local_delayed_pubkey, to_self_delay);
+    let to_remote_script = p2wpkh_output_script(remote_pubkey);
 
-    unimplemented!()
+    // Step 2: Build to_local and to_remote Outputs
+    let to_local_out = build_output(local_amount, to_local_script.to_p2wsh());
+    let to_remote_out = build_output(remote_amount, to_remote_script);
+    // Order outputs
+    let outputs = if to_local_out < to_remote_out 
+        { vec![to_local_out, to_remote_out] }
+        else { vec![to_remote_out, to_local_out] };
+    
+    // Step 3: Declare Version and Locktime
+    let version = Version::TWO;
+    let locktime = LockTime::ZERO;
+    
+    // Step 4: Build and Return the Transaction
+    Transaction {
+        version: version,
+        lock_time: locktime,
+        input: vec![funding_txin],
+        output: outputs
+    }
 }
 
 //
