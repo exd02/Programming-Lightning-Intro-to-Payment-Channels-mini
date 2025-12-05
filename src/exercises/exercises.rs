@@ -136,7 +136,20 @@ pub fn generate_revocation_pubkey(
 //
 
 pub fn generate_revocation_privkey(countersignatory_per_commitment_secret: SecretKey, revocation_base_secret: SecretKey) -> SecretKey {
-    unimplemented!()
+    // Step 1: Calculate Public Keys R and P
+    let r = pubkey_from_secret(revocation_base_secret);
+    let p = pubkey_from_secret(countersignatory_per_commitment_secret);
+    
+    // Step 2: Calculate Hashes h1 and h2
+    let h1 = hash_pubkeys(r, p);
+    let h2 = hash_pubkeys(p, r);
+    
+    // Step 3: Tweak the Secrets with Hashes
+    let tweak1 = privkey_multipication_tweak(revocation_base_secret, h1);
+    let tweak2 = privkey_multipication_tweak(countersignatory_per_commitment_secret, h2);
+
+    // Step 4: Add and Return the Tweaked Secrets
+    add_privkeys(tweak1, tweak2)
 }
 
 //
