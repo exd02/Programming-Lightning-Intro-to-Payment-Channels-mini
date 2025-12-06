@@ -264,6 +264,24 @@ pub fn build_htlc_commitment_transaction(
 // Exercise 9
 //
 
+pub fn build_htlc_timeout_script(revocation_pubkey: &PublicKey,
+                                 to_local_delayed_pubkey: &PublicKey,
+                                 to_self_delay: i64,
+                                )-> ScriptBuf {
+
+    Builder::new()
+        .push_opcode(opcodes::OP_IF)
+            .push_key(&revocation_pubkey)
+        .push_opcode(opcodes::OP_ELSE)
+            .push_int(to_self_delay)
+            .push_opcode(opcodes::OP_CSV)
+            .push_opcode(opcodes::OP_DROP)
+            .push_key(&to_local_delayed_pubkey)
+        .push_opcode(opcodes::OP_ENDIF)
+        .push_opcode(opcodes::OP_CHECKSIG)
+        .into_script()
+}
+
 pub fn build_htlc_timeout_transaction(
     htlc_txin: TxIn,
     revocation_pubkey: &PublicKey,
@@ -272,15 +290,27 @@ pub fn build_htlc_timeout_transaction(
     cltv_expiry: u32,
     htlc_amount: u64,
 ) -> Transaction {
+    
     // Step 1: Build HTLC Timeout Script 
-    
-    
+    let htlc_timeout_script = build_htlc_timeout_script(
+        revocation_pubkey,
+        to_local_delayed_pubkey,
+        to_self_delay
+    );
+
     // Step 2: Build HTLC Output
+    let htlc_output = build_output(htlc_amount, htlc_timeout_script.to_p2wsh());
 
-    
     // Step 3: Declare Version and Locktime
+    let version = Version::TWO;
+    let locktime = LockTime::from_consensus(cltv_expiry);
 
-    
     // Step 4: Build and Return the Transaction
-    
+    Transaction {
+        version: version,
+        lock_time: locktime,
+        input: vec![htlc_txin],
+        output: vec![htlc_output]
+    }
 }
+
