@@ -229,7 +229,35 @@ pub fn build_htlc_commitment_transaction(
     local_amount: u64,
     remote_amount: u64,
 ) -> Transaction {
-    unimplemented!()
+    // Step 1: Build HTLC, to_local, and to_remote Scripts
+    let hltc_script = build_htlc_offerer_witness_script(
+        revocation_pubkey,
+        remote_htlc_pubkey,
+        local_htlc_pubkey,
+        payment_hash160
+    );
+    let to_local_script = to_local(revocation_pubkey, to_local_delayed_pubkey, to_self_delay);
+    let to_remote_script = p2wpkh_output_script(remote_pubkey);
+    
+    // Step 2: Build HTLC, to_local, and to_remote Outputs
+    let htlc_output = build_output(htlc_amount, hltc_script.to_p2wsh());
+    let local_output = build_output(local_amount, to_local_script.to_p2wsh());
+    let remote_output = build_output(remote_amount, to_remote_script);
+    // Sort outputs
+    let mut outputs = vec![htlc_output, local_output, remote_output];
+    outputs.sort();
+    
+    // Step 3: Declare Version and Locktime
+    let version = Version::TWO;
+    let locktime = LockTime::ZERO;
+    
+    // Step 4: Build and Return the Transaction
+    Transaction {
+        version: version,
+        lock_time: locktime,
+        input: vec![funding_txin],
+        output: outputs
+    }
 }
 
 //
@@ -244,5 +272,15 @@ pub fn build_htlc_timeout_transaction(
     cltv_expiry: u32,
     htlc_amount: u64,
 ) -> Transaction {
-    unimplemented!()
+    // Step 1: Build HTLC Timeout Script 
+    
+    
+    // Step 2: Build HTLC Output
+
+    
+    // Step 3: Declare Version and Locktime
+
+    
+    // Step 4: Build and Return the Transaction
+    
 }
