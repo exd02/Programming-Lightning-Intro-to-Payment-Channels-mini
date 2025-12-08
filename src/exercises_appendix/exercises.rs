@@ -210,3 +210,30 @@ fn get_hardened_extended_child_private_key(master_key: Xpriv, idx: u32) -> Xpriv
         .expect("Your RNG is busted");
     hardened_extended_child
 }
+
+fn extract_lower_48_bits(input: [u8; 32]) -> u64 {
+      ((input[26] as u64) << 8 * 5)
+    | ((input[27] as u64) << 8 * 4)
+    | ((input[28] as u64) << 8 * 3)
+    | ((input[29] as u64) << 8 * 2)
+    | ((input[30] as u64) << 8)
+    | input[31] as u64
+}
+
+pub fn get_commitment_transaction_number_obscure_factor(
+  channel_open_payment_basepoint: &PublicKey, channel_accept_payment_basepoint: &PublicKey,
+) -> u64 {
+
+    // Step 1: Initialize the SHA256 Engine
+    let mut sha = Sha256::engine();
+    
+    // Step 2: Step 2: Serialize and Input Both Basepoints
+    sha.input(&channel_open_payment_basepoint.serialize());
+sha.input(&channel_accept_payment_basepoint.serialize());
+    
+    // Step 3: Finalize the Hash
+    let res = Sha256::from_engine(sha).to_byte_array();
+    
+    // Step 4: Extract and Return Lower 48 Bits
+    extract_lower_48_bits(res)
+}

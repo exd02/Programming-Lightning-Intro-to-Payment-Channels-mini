@@ -1,9 +1,12 @@
 #![allow(dead_code, unused_imports, unused_variables, unused_must_use)]
 use crate::internal;
-use crate::exercises_appendix::exercises::{NodeKeysManager, Basepoint};
-use crate::exercises_appendix::tx_exercises::{get_commitment_transaction_number_obscure_factor,
-                                             build_commitment_input,
-                                             build_commitment_locktime};
+use crate::exercises_appendix::exercises::{get_commitment_transaction_number_obscure_factor, NodeKeysManager, Basepoint};
+use crate::exercises_appendix::tx_exercises::{
+    // get_commitment_transaction_number_obscure_factor,
+    build_commitment_input,
+    build_commitment_locktime
+};
+
 use crate::exercises_appendix::solutions::{build_commitment_input as build_commitment_input_answer };
 use bitcoin::secp256k1;
 use bitcoin::secp256k1::Secp256k1;
