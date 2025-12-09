@@ -9,6 +9,10 @@ use bitcoin::secp256k1::Scalar;
 use bitcoin::secp256k1::Secp256k1;
 use bitcoin::secp256k1::SecretKey;
 use serde::ser::Serialize;
+use bitcoin::{OutPoint, Sequence, Transaction, TxIn, TxOut, Witness};
+use bitcoin::script::{ScriptBuf};
+use bitcoin::locktime::absolute::LockTime;
+
 use crate::exercises::solutions::{
   generate_revocation_pubkey
 };
@@ -236,4 +240,35 @@ sha.input(&channel_accept_payment_basepoint.serialize());
     
     // Step 4: Extract and Return Lower 48 Bits
     extract_lower_48_bits(res)
+}
+
+pub fn build_commitment_input(
+    funding_outpoint: OutPoint,
+    commitment_transaction_number_obscure_factor: &u64,
+    commitment_number: &u64,
+) -> TxIn {
+    // Step 1: Compute the Obscured Commitment Number
+    let obscure_num = commitment_number ^ commitment_transaction_number_obscure_factor;
+    
+    // Step 2: Construct the Sequence Field
+    let sequence = Sequence(((obscure_num >> 24) & 0xff_ffff | 0x80 << 24) as u32);
+    
+    // Step 3: Build and Return the TxIn
+    TxIn {
+        previous_output: funding_outpoint,
+        script_sig: ScriptBuf::new(),
+        sequence,
+        witness: Witness::new(),
+    }
+}
+
+pub fn build_commitment_locktime(
+    commitment_transaction_number_obscure_factor: &u64,
+    commitment_number: &u64,
+) -> LockTime {
+    // Step 1: Compute the Obscured Commitment Number
+    let obscure_num = commitment_number ^ commitment_transaction_number_obscure_factor;
+    
+    // Step 2: Construct and Return the LockTime
+    LockTime::from_consensus((obscure_num & 0xff_ffff | 0x20 << 24) as u32)
 }
